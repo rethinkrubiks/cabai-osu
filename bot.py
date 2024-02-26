@@ -37,7 +37,12 @@ def run_discord_bot():
             response = handle_response(user_message[1:])
             if response is None:
                 return None
-            await message.channel.send(response)
+            
+            elif isinstance(response,discord.Embed):
+                await message.channel.send(embed = response)
+
+            else: await message.channel.send(response)
+
 
 
 
