@@ -22,6 +22,33 @@ def response_osu(message):
         recent = scores[0]
         acc = recent.accuracy*100
         acc_rounded= round(acc,2)
-        embed.description = "Accuracy: " + str(acc_rounded) + '%'
+
+        title = recent.beatmapset.title
+
+        rank = str(recent.rank).split('.')[1]
+        rank_emoji = get_rank_emoji(rank)
+        
+
+
+        image = f'https://b.ppy.sh/thumb/{recent.beatmapset.id}.jpg'
+        embed.set_thumbnail(url=image)
+
+        embed.description = f'Played by {p_message[1]}, {title} \n Accuracy: {rank_emoji}{acc_rounded} %'
 
         return embed
+    
+def get_rank_emoji(rank: str) -> discord.Emoji:
+    if rank == 'A':
+        pass
+    elif rank == 'B':
+        pass
+    elif rank == 'C':
+        pass
+    elif rank == 'D':
+        pass
+    elif rank == 'F':
+        pass
+    elif rank == 'S':
+        pass
+    elif rank == 'SH':
+        pass
