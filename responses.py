@@ -13,6 +13,12 @@ def handle_response(message) -> str:
     if p_message == 'hello':
         return 'hi'
     
+#    if p_message == 'reto_item': <---- scrap anjign jangan dimasukin
+#        return 'item banget ngentot'
+    
+#    if p_message == 'genosida': <---- JANGAN COK
+#        return 'GENOSIDA KULIT HITAM'
+    
     p_message=p_message.split()
 
     if p_message[0] == 'r':

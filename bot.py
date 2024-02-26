@@ -17,7 +17,7 @@ def run_discord_bot():
     tree = app_commands.CommandTree(client)
 
     @client.event
-    #bot starts running
+    #bot starts running!r
     async def on_ready():
         await tree.sync()
         print(f'{client.user} is now running :D')
