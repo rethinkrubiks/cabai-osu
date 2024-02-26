@@ -2,11 +2,14 @@ import discord
 from datetime import datetime
 import asyncio
 from discord import app_commands
-from responses import respond
+from responses import handle_response
+import dotenv
+
+config = dotenv.dotenv_values('.env')
 
 def run_discord_bot():
     #client setup
-    TOKEN = ''
+
     intents = discord.Intents.default()
     intents.message_content = True
     activity = discord.Activity(name='YOU', type=discord.ActivityType.watching)
@@ -31,14 +34,14 @@ def run_discord_bot():
         print(f'{username} said: {user_message} ({channel})')
 
         if user_message[0] == '!':
-            response = respond(user_message[1:])
+            response = handle_response(user_message[1:])
             if response is None:
                 return None
-            channel.send(response)
+            await message.channel.send(response)
 
 
 
-    client.run(TOKEN)
+    client.run(config['TOKEN'])
 
 if __name__ == "__main__":
     run_discord_bot()
