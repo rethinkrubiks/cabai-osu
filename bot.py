@@ -1,7 +1,8 @@
 import discord
+from discord.ext import commands
 from datetime import datetime
 import asyncio
-from discord import app_commands
+from discord import app_commands, Client, Message
 from responses import handle_response
 import dotenv
 
@@ -43,7 +44,19 @@ def run_discord_bot():
 
             else: await message.channel.send(response)
 
+    @client.event
+    async def embed(ctx, *, message):
+        embed = discord.Embed()
+    
+    # Check if the command issuer has a role with color
+        role = discord.utils.get(ctx.guild.roles)
+        if role:
+                embed.colour = role.color
+        else:
+        # Default color if role color not found
+            embed.colour = discord.Color.default()
 
+        await ctx.send(embed=embed)
 
 
     client.run(config['TOKEN'])
