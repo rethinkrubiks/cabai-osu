@@ -15,30 +15,21 @@ def response_osu(message):
 
         embed = discord.Embed()
         embed.colour=discord.Colour.dark_teal()
-        embed.title = f'Recent osu! play for {p_message[1]}'
         
-        #User ID / Name
+        #User ID / Name / Scores
         username = ''
         for i in range(1, len(p_message)):
             username += p_message[i] + ' '
         username = username.rstrip()
-        id = api.user(username).id
-
-        id = api.user(p_message[1]).id
-        scores = api.user_scores(id, "recent", include_fails=True, mode=None, limit=1)
+        user = api.user(username)
+        embed.title = f'Recent osu! play for {user.username}'
+        scores = api.user_scores(user.id, "recent", include_fails=True, mode=None, limit=1)
         recent = scores[0]
-
-
-        #Acc
-        acc = recent.accuracy*100
-        acc_rounded= round(acc,2)
-
-        #PP (masih ga bisa)
-        pp = recent.pp
-        if pp is float:
-            pp = round(pp,2)
-        elif pp is None:
-            pp = 'No pp'
+        
+        #no score
+        if len(scores) == 0:
+            embed.description = 'no recent play'
+            return embed
 
         #Score
         score = recent.score
@@ -46,6 +37,7 @@ def response_osu(message):
         #Map details
         title = recent.beatmapset.title
         beatmapid = recent.beatmap.id
+        embed.description = f'[{title}](https://osu.ppy.sh/b/{beatmapid}) \n Score: {score}\n'
 
         #Rank emoji gaje
         rank = str(recent.rank).split('.')[1]
@@ -55,7 +47,27 @@ def response_osu(message):
         image = f'https://b.ppy.sh/thumb/{recent.beatmapset.id}.jpg'
         embed.set_thumbnail(url=image)
 
-        embed.description = f'[{title}](https://osu.ppy.sh/b/{beatmapid}) \n Score: {score} \n Accuracy: {rank_emoji}{acc_rounded}% \n PP: {pp}\n'
+        #Combo
+        combo = str(recent.max_combo)
+        maxcombo = str(recent.beatmap.max_combo)
+        embed.description += f' Combo: ({combo}/{maxcombo}) \n'
+
+        #Acc
+        acc = recent.accuracy*100
+        acc_rounded= round(acc,2)
+        embed.description += f' Accuracy: {rank_emoji} {acc_rounded}% \n'
+
+        #PP (masih ga bisa)
+        pp = recent.pp
+        if pp is float:
+            pp = round(pp,2)
+        elif pp is None:
+            pp = 'No pp'
+        embed.description += f' PP: {pp}\n'
+
+        #Mods
+        mods = str(recent.mods)
+        embed.description += f' Mods: {mods}\n'
         
         return embed
 
@@ -89,18 +101,18 @@ def response_osu(message):
     
 def get_rank_emoji(rank: str) -> discord.Emoji:
     if rank == 'A':
-        pass
+        return ":regional_indicator_a: "
     elif rank == 'B':
-        pass
+        return ":regional_indicator_b: "
     elif rank == 'C':
-        pass
+        return ":regional_indicator_c: "
     elif rank == 'D':
-        pass
+        return ":regional_indicator_d: "
     elif rank == 'F':
-        pass
+        return ":regional_indicator_f: "
     elif rank == 'S':
-        pass
+        return ":regional_indicator_s: "
     elif rank == 'SH':
-        pass
+        return ":regional_indicator_s: :regional_indicator_h: "
 
  
