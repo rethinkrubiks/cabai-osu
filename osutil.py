@@ -38,10 +38,11 @@ def response_osu(message):
 
         #Map details
         beatmapid = recent.beatmap.id
-        beatmap = api.beatmapset(beatmap_id={beatmapid})
+        beatmapset = recent.beatmapset
+        diff = recent.beatmap.version
         #beatmap_attributes = api.beatmap_attributes(beatmap_id={beatmapid}, mods=None, ruleset=None, ruleset_id=None)
 
-        title = f'{beatmap.artist} - {recent.beatmapset.title} [Diff Name]' #fix diff name
+        title = f'{beatmapset.artist} - {beatmapset.title} [{diff}]' #fix diff name
         
         embed.description = f'[{title}](https://osu.ppy.sh/b/{beatmapid})\n'
         embed.description += f'Score: {formatted_score}\n'
