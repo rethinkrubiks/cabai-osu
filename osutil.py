@@ -1,10 +1,11 @@
 import discord
 from ossapi import Ossapi
+from datetime import datetime as dt
+import requests
 
 client_id = '30542'
 client_secret = 'mhDf5MLsXMF67W3FZiBABqnt0DKWN8ZCRUtSTTTp'
 api = Ossapi(client_id, client_secret)
-
 
 def response_osu(message):
     p_message = message.lower()
@@ -24,22 +25,28 @@ def response_osu(message):
         user = api.user(username)
         embed.title = f'Recent osu! play for {user.username}'
         scores = api.user_scores(user.id, "recent", include_fails=True, mode=None, limit=1)
-        recent = scores[0]
         
         #no score
         if len(scores) == 0:
-            embed.description = 'no recent play'
+            embed.description = 'No recent play'
             return embed
 
         #Score
+        recent = scores[0]
         score = recent.score
+        formatted_score = '{:,}'.format(score)
 
         #Map details
-        title = recent.beatmapset.title
         beatmapid = recent.beatmap.id
-        embed.description = f'[{title}](https://osu.ppy.sh/b/{beatmapid}) \n Score: {score}\n'
+        beatmap = api.beatmapset(beatmap_id={beatmapid})
+        #beatmap_attributes = api.beatmap_attributes(beatmap_id={beatmapid}, mods=None, ruleset=None, ruleset_id=None)
 
-        #Rank emoji gaje
+        title = f'{beatmap.artist} - {recent.beatmapset.title} [Diff Name]' #fix diff name
+        
+        embed.description = f'[{title}](https://osu.ppy.sh/b/{beatmapid})\n'
+        embed.description += f'Score: {formatted_score}\n'
+
+        #Rank emoji
         rank = str(recent.rank).split('.')[1]
         rank_emoji = get_rank_emoji(rank)
         
@@ -57,7 +64,7 @@ def response_osu(message):
         acc_rounded= round(acc,2)
         embed.description += f' Accuracy: {rank_emoji} {acc_rounded}% \n'
 
-        #PP (masih ga bisa)
+        #PP (harus submitted / overwritten & ranked)
         pp = recent.pp
         if pp is float:
             pp = round(pp,2)
@@ -68,17 +75,31 @@ def response_osu(message):
         #Mods
         mods = str(recent.mods)
         embed.description += f' Mods: {mods}\n'
+
+        #Time
+        time = recent.created_at
+        if isinstance(time, str):
+            time = dt.strptime(time, '%Y-%m-%d %H:%M:%S%z')
+        formatted_time = time.strftime('%Y-%m-%d %H:%M:%S')
+        
+        embed.set_footer(text=f'Played at {formatted_time} UTC+0', icon_url=f'https://cdn.discordapp.com/attachments/1211770479828803665/1213033595237703730/Osu_Logo_2016.svg.png?ex=65f40092&is=65e18b92&hm=438f30196ac3633c44193d185da4d5eac7cf0eafd9ad0335193885a6823e6b51&')
         
         return embed
-
+    
     if p_message[0] == 'p':
+
         #User ID / Name
-        user = api.user(p_message[1])
-        id = api.user(p_message[1]).id
+        username = ''
+        for i in range(1, len(p_message)):
+            username += p_message[i] + ' '
+        username = username.rstrip()
+        user = api.user(username)
+        id = api.user(username).id
+        username = user.username
 
         embed = discord.Embed()
         embed.colour=discord.Colour.dark_teal()
-        embed.title = f'osu! profile of {p_message[1]}'
+        embed.title = f'osu! profile of {username}'
 
         #pfp
         image = f'https://a.ppy.sh/{id}'
@@ -86,18 +107,29 @@ def response_osu(message):
 
         #Rank
         globalrank = user.statistics.global_rank
+        formatted_globalrank = '{:,}'.format(globalrank)
+
         countryrank = user.statistics.country_rank
+        formatted_countryrank = '{:,}'.format(countryrank)
+        embed.description = f'Global Rank: #{formatted_globalrank}\n Country Rank: #{formatted_countryrank}\n'
 
         #pp
         pp = user.statistics.pp
+        pp_rounded = round(pp,2)
+        embed.description += f'PP: {pp_rounded}\n'
 
         #playcount
         pc = user.statistics.play_count
+        embed.description += f'Playcount: {pc}'
 
-        embed.description = f'Global Rank: #{globalrank}\n Country Rank: #{countryrank}\n PP: {pp}\n Playcount: {pc}'
+        #join date
+        jd = user.join_date
+        if isinstance(jd, str):
+            jd = dt.strptime(jd, '%Y-%m-%d %H:%M:%S%z')
+        formatted_jd = jd.strftime('%Y-%m-%d %H:%M:%S')
+        embed.set_footer(text=f'Joined at {formatted_jd} UTC+0', icon_url=f'https://cdn.discordapp.com/attachments/1211770479828803665/1213033595237703730/Osu_Logo_2016.svg.png?ex=65f40092&is=65e18b92&hm=438f30196ac3633c44193d185da4d5eac7cf0eafd9ad0335193885a6823e6b51&')
+
         return embed
-    
-
     
 def get_rank_emoji(rank: str) -> discord.Emoji:
     if rank == 'A':
