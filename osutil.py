@@ -1,11 +1,11 @@
 import discord
 from ossapi import Ossapi
 from datetime import datetime as dt
-import requests
+import dotenv
 
 client_id = '30542'
-client_secret = 'mhDf5MLsXMF67W3FZiBABqnt0DKWN8ZCRUtSTTTp'
-api = Ossapi(client_id, client_secret)
+config = dotenv.dotenv_values('.env')
+api = Ossapi(client_id, config['SECRET'])
 
 def response_osu(message):
     p_message = message.lower()
