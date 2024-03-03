@@ -42,8 +42,7 @@ def response_osu(message):
         diff = recent.beatmap.version
         #beatmap_attributes = api.beatmap_attributes(beatmap_id={beatmapid}, mods=None, ruleset=None, ruleset_id=None)
 
-        title = f'{beatmapset.artist} - {beatmapset.title} [{diff}]' #fix diff name
-        
+        title = f'{beatmapset.artist} - {beatmapset.title} [{diff}]'
         embed.description = f'[{title}](https://osu.ppy.sh/b/{beatmapid})\n'
         embed.description += f'Score: {formatted_score}\n'
 
@@ -98,6 +97,8 @@ def response_osu(message):
         id = api.user(username).id
         username = user.username
 
+        countrycode = user.country_code
+
         embed = discord.Embed()
         embed.colour=discord.Colour.dark_teal()
         embed.title = f'osu! profile of {username}'
@@ -112,16 +113,26 @@ def response_osu(message):
 
         countryrank = user.statistics.country_rank
         formatted_countryrank = '{:,}'.format(countryrank)
-        embed.description = f'Global Rank: #{formatted_globalrank}\n Country Rank: #{formatted_countryrank}\n'
+
+        embed.description = f'**Rank: **#{formatted_globalrank}  (#{formatted_countryrank} {countrycode})\n'
 
         #pp
         pp = user.statistics.pp
         pp_rounded = round(pp,2)
-        embed.description += f'PP: {pp_rounded}\n'
+        embed.description += f'**PP:** {pp_rounded}\n'
+
+        #profile accuracy / level
+        p_acc = user.statistics.hit_accuracy
+        rounded_p_acc = round(p_acc,2)
+        level = user.statistics.level.current
+        embed.description += f'**Accuracy:** {rounded_p_acc}% • **Level:** {level}\n'
 
         #playcount
         pc = user.statistics.play_count
-        embed.description += f'Playcount: {pc}'
+        pt = user.statistics.play_time/3600
+        rounded_pt = round(pt,0)
+        rounded_pt = int(rounded_pt) if rounded_pt.is_integer() else rounded_pt
+        embed.description += f'**Playcount:** {pc} ({rounded_pt} hours)\n'
 
         #join date
         jd = user.join_date
