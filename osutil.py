@@ -5,7 +5,8 @@ import dotenv
 
 client_id = '30542'
 config = dotenv.dotenv_values('.env')
-api = Ossapi(client_id, config['SECRET'], 'http://localhost:3900/')
+#api = Ossapi(client_id, config['SECRET'], 'http://localhost:3900/')
+api = Ossapi(client_id, config['SECRET'])
 
 def response_osu(message):
     p_message = message.lower()
@@ -35,7 +36,7 @@ def response_osu(message):
         recent = scores[0]
         score = recent.score
         formatted_score = '{:,}'.format(score)
-        replay = api.download_score(GameMode('osu'), recent.id)
+        #replay = api.download_score(GameMode('osu'), recent.id)
 
         #Map details
         beatmapid = recent.beatmap.id
@@ -57,7 +58,7 @@ def response_osu(message):
 
         #Combo
         combo = str(recent.max_combo)
-        embed.description += f' Combo: ({combo}/{replay.max_combo}) \n'
+        embed.description += f' Combo: ({combo}/{recent.beatmap.max_combo}) \n'
 
         #Acc
         acc = recent.accuracy*100
