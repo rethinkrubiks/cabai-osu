@@ -1,11 +1,11 @@
 import discord
-from ossapi import Ossapi
+from ossapi import Ossapi, GameMode
 from datetime import datetime as dt
 import dotenv
 
 client_id = '30542'
 config = dotenv.dotenv_values('.env')
-api = Ossapi(client_id, config['SECRET'])
+api = Ossapi(client_id, config['SECRET'], 'http://localhost:3900/')
 
 def response_osu(message):
     p_message = message.lower()
@@ -31,10 +31,11 @@ def response_osu(message):
             embed.description = 'No recent play'
             return embed
 
-        #Score
+        #Score / Replay
         recent = scores[0]
         score = recent.score
         formatted_score = '{:,}'.format(score)
+        replay = api.download_score(GameMode('osu'), recent.id)
 
         #Map details
         beatmapid = recent.beatmap.id
@@ -57,8 +58,7 @@ def response_osu(message):
 
         #Combo
         combo = str(recent.max_combo)
-        maxcombo = str(recent.beatmap.max_combo)
-        embed.description += f' Combo: ({combo}/{maxcombo}) \n'
+        embed.description += f' Combo: ({combo}/{replay.max_combo}) \n'
 
         #Acc
         acc = recent.accuracy*100
